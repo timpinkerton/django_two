@@ -1,8 +1,23 @@
 from django.contrib import admin
 
-from .models import Question
+from .models import Question, Choice
 # Register your models here.
 
-#This tells the admin that the Question objects have an admin interface
-admin.site.register(Question)
+class ChoiceInline(admin.TabularInline):
+    model = Choice
+    extra = 3
 
+# This is to customize how the Admin form looks
+class QuestionAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None,               {'fields': ['question_text']}),
+        ('Date information', {'fields': ['pub_date'], 'classes': ['collapse']}),
+    ]
+    inlines = [ChoiceInline]
+    list_display = ('question_text', 'pub_date', 'was_published_recently')
+    #This adds a "Filter" sidebar that lets people filter the change list
+    list_filter = ['pub_date']
+    search_fields = ['question_text']
+
+#This tells the admin that the Question objects have an admin interface
+admin.site.register(Question, QuestionAdmin)
